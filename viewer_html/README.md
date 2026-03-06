@@ -1,30 +1,73 @@
-# viewer_html
+# Viewer HTML
 
-Viewer-only, plain-script HDF5 frontend built around a static ID-based HTML shell.
+Plain-script frontend for viewing HDF5 data through the backend API.
 
-## What is implemented
-- Single entrypoint at `index.html` with a permanent shell (`viewer-app`, `viewer-sidebar`, `viewer-panel`, status regions, and mobile backdrop controls).
-- Full viewer behavior parity for tree navigation, inspect metadata, display previews, and full matrix/line/heatmap runtimes.
-- Non-module JavaScript architecture (`window.HDFViewer`) with strict script load order and runtime dependency checks.
-- Deep-link contract using `?file=<object-key>`.
-- Export bridge support for displayed/full CSV and current PNG actions where runtime supports it.
+Default local integration:
+- Backend API: `http://localhost:5000`
+- H5API browser (optional helper app): `http://localhost:5100`
 
-## How it is implemented
-- `index.html` loads CSS and JavaScript in deterministic order; every JS file is an IIFE that publishes to the namespace.
-- `js/app-viewer.js` validates dependencies, wires state subscriptions, handles deep-link boot, and triggers rerender.
-- `js/views/viewerView.js` updates fixed shell regions (no full-shell replacement) and delegates UI interactions.
-- State/actions are centralized in `js/state`, API normalization/caching in `js/api`, and runtime rendering in `js/components/viewerPanel`.
-- Matrix, line, and heatmap full views attach runtime-specific `__exportApi` handlers for the subbar export menu.
+`viewer_html` itself is static and can be hosted on any port.
 
-## Folder map
-- `assets/`: static branding assets.
-- `config/`: runtime config bootstrap.
-- `css/`: tokens, shell layout, panel/runtime styles, and component-level CSS.
-- `js/`: namespace/core, API, state/actions, components, view orchestration, and app boot.
+## What this frontend does
 
-## Boot flow (high level)
-1. `config/runtime-config.js` creates `window.__CONFIG__`.
-2. `js/core/*` initializes namespace/config/DOM references.
-3. `js/api/*` and `js/state/*` prepare contracts, caching, and actions.
-4. `js/components/*` renders shell content and binds runtime behavior.
-5. `js/views/viewerView.js` and `js/app-viewer.js` render the app and handle user interaction.
+- opens a file key using `?file=<object-key>`
+- shows lazy HDF5 tree navigation
+- supports inspect mode (metadata)
+- supports display mode with:
+  - matrix view
+  - line graph view
+  - heatmap view
+- supports full runtimes for matrix/line/heatmap
+- supports export actions (CSV and PNG where supported)
+
+## Important files
+
+- `viewer_html/index.html`
+  - static shell and script load order.
+
+- `viewer_html/config/runtime-config.js`
+  - runtime API base configuration.
+
+- `viewer_html/js/app-viewer.js`
+  - app bootstrap and deep-link handling.
+
+- `viewer_html/js/views/viewerView.js`
+  - shell rendering + delegated UI events + export menu routing.
+
+- `viewer_html/js/api/hdf5Service.js`
+  - frontend cache/dedupe service for backend calls.
+
+- `viewer_html/js/state/reducers/*.js`
+  - viewer behaviors (files/tree/view/display-config/data/compare).
+
+- `viewer_html/js/components/viewerPanel/runtime/*.js`
+  - matrix, line, heatmap runtime engines.
+
+## Run locally
+
+```bash
+cd viewer_html
+python -m http.server 3000
+```
+
+Open with deep link:
+
+```text
+http://localhost:3000/?file=<url-encoded-object-key>
+```
+
+## Configuration
+
+Set backend URL in:
+- `viewer_html/config/runtime-config.js`
+
+Default value:
+
+```js
+window.__CONFIG__.API_BASE_URL = "http://localhost:5000";
+```
+
+## Documentation
+
+Start here:
+- `viewer_html/docs/README.md`

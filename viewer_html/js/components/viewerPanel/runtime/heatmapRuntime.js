@@ -727,6 +727,7 @@ function initializeHeatmapRuntime(shell) {
   }
 
   function restoreCachedHeatmapData() {
+    // Rehydrate last rendered bitmap data and viewport so quick back/forth selection feels instant.
     const cachedData = HEATMAP_SELECTION_DATA_CACHE.get(runtime.cacheKey);
     if (!cachedData) {
       return false;
@@ -760,6 +761,7 @@ function initializeHeatmapRuntime(shell) {
     runtime.effectiveMaxSize = Number(cachedData.effectiveMaxSize) || HEATMAP_MAX_SIZE;
     runtime.loadedPhase = cachedData.phase === "highres" ? "highres" : "preview";
 
+    // View cache stores interaction state (zoom/pan/plot mode/selection), separate from pixel data cache.
     const cachedView = HEATMAP_SELECTION_VIEW_CACHE.get(runtime.cacheKey);
     if (cachedView && typeof cachedView === "object") {
       runtime.zoom = clamp(Number(cachedView.zoom) || HEATMAP_MIN_ZOOM, HEATMAP_MIN_ZOOM, HEATMAP_MAX_ZOOM);
@@ -1330,7 +1332,7 @@ function initializeHeatmapRuntime(shell) {
     context.font = "600 10px 'Segoe UI', Arial, sans-serif";
     context.fillStyle = "#475569";
     context.textAlign = "center";
-    // Viewport-aware axis ticks — update as user zooms/pans
+    // Viewport-aware axis ticks: update as user zooms/pans.
     const xTicks = runtime.zoom > 1
       ? buildViewportTicks(runtime.cols, runtime.panX, runtime.zoom, layout.chartWidth)
       : buildTicks(runtime.cols).map((col) => ({
@@ -1484,7 +1486,7 @@ function initializeHeatmapRuntime(shell) {
     runtime.hoverDisplayRow = cell.displayRow;
 
     if (tooltip) {
-      // Use canvas rect for tooltip clamping — keeps coordinates consistent
+      // Use canvas rect for tooltip clamping: keeps coordinates consistent.
       // with getRelativePoint() which is also canvas-relative.
       const canvasRect = canvas.getBoundingClientRect();
       const hasSelectedCell = runtime.selectedCell && Number.isFinite(runtime.selectedCell.row);
@@ -1740,6 +1742,7 @@ function initializeHeatmapRuntime(shell) {
   };
 
   function cancelInFlightRequests() {
+    // Runtime owns cancel keys so teardown can stop pending async updates safely.
     runtime.activeCancelKeys.forEach((cancelKey) => {
       cancelPendingRequest(cancelKey, "heatmap-runtime-disposed");
     });

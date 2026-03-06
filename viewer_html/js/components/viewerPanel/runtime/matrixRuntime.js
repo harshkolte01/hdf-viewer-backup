@@ -119,6 +119,7 @@ function initializeMatrixRuntime(shell) {
       return;
     }
 
+    // Render work is collapsed to one frame to keep scroll smooth.
     runtime.rafToken = requestAnimationFrame(() => {
       runtime.rafToken = null;
       renderViewport();
@@ -256,6 +257,7 @@ function initializeMatrixRuntime(shell) {
   }
 
   function requestVisibleBlocks() {
+    // Rebuild requested block set from current viewport + overscan region.
     runtime.blockQueue = [];
     runtime.queuedBlockKeys.clear();
 
@@ -291,6 +293,7 @@ function initializeMatrixRuntime(shell) {
     const contentHeight = Math.max(0, viewportHeight - MATRIX_HEADER_HEIGHT);
     const contentWidth = Math.max(0, viewportWidth - MATRIX_INDEX_WIDTH);
 
+    // Visible window in matrix cell coordinates (with overscan so fast scroll has preloaded cells).
     visible.rowStart = Math.max(
       0,
       Math.floor(contentScrollTop / MATRIX_ROW_HEIGHT) - MATRIX_OVERSCAN
@@ -411,6 +414,7 @@ function initializeMatrixRuntime(shell) {
       return;
     }
 
+    // Export path fetches missing blocks directly so CSV contains fully resolved viewport values.
     const requests = [];
     const paramsBase = {
       mode: "matrix",

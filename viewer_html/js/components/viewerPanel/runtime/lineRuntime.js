@@ -964,6 +964,7 @@ function initializeLineRuntime(shell) {
       clearTimeout(runtime.fetchTimer);
     }
 
+    // Debounce viewport changes so wheel/pan bursts issue one data request.
     runtime.fetchTimer = setTimeout(() => {
       runtime.fetchTimer = null;
       void fetchLineRange();
@@ -1012,6 +1013,7 @@ function initializeLineRuntime(shell) {
       const comparePrecheckFailures = [];
       const compareTargets = [];
       const baseNumericKnown = runtime.baseDtype ? isNumericDtype(runtime.baseDtype) : true;
+      // Validate compare targets before requesting data so mismatches show explicit reasons.
       runtime.compareItems.forEach((item) => {
         const comparePath = String(item?.path || "").trim();
         if (!comparePath || comparePath === runtime.path) {
@@ -1089,6 +1091,7 @@ function initializeLineRuntime(shell) {
         ...compareTargets,
       ];
 
+      // Base and compare ranges are fetched together; compare failures do not block base rendering.
       const settledResponses = await Promise.allSettled(
         requestTargets.map((target) =>
           getFileData(runtime.fileKey, target.path, params, {
@@ -1345,6 +1348,7 @@ function initializeLineRuntime(shell) {
     setMatrixStatus(statusElement, "Line PNG exported.", "info");
   }
 
+  // Export menu in viewerView reads this runtime-provided API.
   shell.__exportApi = {
     exportCsvDisplayed,
     exportCsvFull,
@@ -1855,7 +1859,7 @@ function initializeLineRuntime(shell) {
   }
   document.addEventListener("keydown", onFullscreenEsc);
 
-  /* ResizeObserver — re-render chart when container resizes */
+  /* ResizeObserver: re-render chart when container resizes */
   let resizeTimer = null;
   const onResize = () => {
     if (runtime.destroyed) return;

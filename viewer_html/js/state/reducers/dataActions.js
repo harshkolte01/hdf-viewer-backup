@@ -79,10 +79,13 @@ function unpackDeps(deps) {
     areFixedIndicesEqual,
   } = unpackDeps(deps);
 
+  // First paint is intentionally lighter; repeated views can ask for a denser preview.
   const PREVIEW_MAX_SIZE_FIRST = 160;
   const PREVIEW_MAX_SIZE_STEADY = 256;
   const PREVIEW_DETAIL = "fast";
+  // Request-key promise dedupe avoids duplicate network calls during quick UI churn.
   const previewRequestPromises = new Map();
+  // Tracks selections that already received at least one preview response.
   const warmedPreviewSelections = new Set();
 
   function resolvePreviewMode(displayTab) {
@@ -130,6 +133,7 @@ function unpackDeps(deps) {
   }
 
   function applyPreviewResponse(latest, targetPath, response, requestKey) {
+    // Keep staged/applied display config valid for the current shape after each preview response.
     const shape = normalizeShape(response?.shape);
     const prevConfig = latest.displayConfig || getDisplayConfigDefaults();
 
@@ -332,6 +336,7 @@ function unpackDeps(deps) {
           cancelPrevious: true,
           staleWhileRefresh: true,
           onBackgroundUpdate: (freshResponse) => {
+            // Background refresh can finish after navigation; only apply if selection is still current.
             const latest = getState();
             const canApplyBackground =
               latest.selectedFile === snapshot.selectedFile &&
@@ -347,6 +352,7 @@ function unpackDeps(deps) {
         });
         const latest = getState();
 
+        // Main-response stale guard: prevents old requests from overwriting a newer selection.
         if (
           latest.selectedFile === snapshot.selectedFile &&
           latest.selectedPath === targetPath &&

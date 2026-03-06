@@ -12,6 +12,8 @@
     return;
   }
   var moduleState = ensurePath(ns, "api.hdf5Service");
+// Frontend-side caches keep repeated navigation and redraw operations fast.
+// Key design: cache keys always include file identity + dataset slice selectors.
 const frontendCache = {
   files: null,
   treeChildren: new Map(),
@@ -21,6 +23,7 @@ const frontendCache = {
   heatmapData: new LruCache(20),
   metadata: new LruCache(80),
 };
+// Separate maps prevent duplicate background refresh and duplicate data window calls.
 const previewRefreshInFlight = new Map();
 const dataRequestsInFlight = new Map();
 
@@ -60,6 +63,7 @@ function getTreeCache(fileKey) {
   return frontendCache.treeChildren.get(fileKey);
 }
 
+// Preview cache key must include all display knobs because any of them can change shape/data.
 function getPreviewCacheKey(fileKey, path, params = {}) {
   return [
     fileKey,
@@ -234,6 +238,7 @@ function getCancelChannel(type, fileKey, path) {
     };
 
     if (staleWhileRefresh) {
+      // Return cached payload immediately, then refresh in background once per key.
       const refreshKey = cacheKey;
       if (!previewRefreshInFlight.has(refreshKey)) {
         const refreshPromise = apiClient
@@ -303,6 +308,7 @@ async function getMatrixData(key, path, params, options) {
       };
     }
 
+    // Reuse the same promise when multiple consumers ask for the same block concurrently.
     const pendingRequest = dataRequestsInFlight.get(cacheKey);
     if (pendingRequest) {
       return pendingRequest;
@@ -353,6 +359,7 @@ async function getLineData(key, path, params, options) {
       };
     }
 
+    // Reuse in-flight line window request so pan/zoom bursts do not duplicate calls.
     const pendingRequest = dataRequestsInFlight.get(cacheKey);
     if (pendingRequest) {
       return pendingRequest;
@@ -401,6 +408,7 @@ async function getHeatmapData(key, path, params, options) {
       };
     }
 
+    // Reuse in-flight heatmap request for identical params.
     const pendingRequest = dataRequestsInFlight.get(cacheKey);
     if (pendingRequest) {
       return pendingRequest;
