@@ -47,6 +47,8 @@ def _resolve_storage_root() -> Path:
     else:
         ordered_candidates.extend([linux_root, windows_root])
 
+    # Resolve first configured candidate so deployment can move between
+    # Windows and Linux without code changes.
     for raw in ordered_candidates:
         value = str(raw or "").strip()
         if value:
@@ -84,6 +86,7 @@ def _resolve_prefix_path(prefix: str) -> Path:
 
     target = root.joinpath(*normalized_prefix.split("/")).resolve(strict=False)
     try:
+        # Explicitly reject prefix traversal outside configured storage root.
         target.relative_to(root)
     except ValueError as exc:
         raise ValueError("Prefix escapes configured storage root") from exc
@@ -93,6 +96,7 @@ def _resolve_prefix_path(prefix: str) -> Path:
 def list_prefix(prefix: str):
     """
     List immediate children at a prefix within configured filesystem storage.
+    Only HDF5 file extensions are returned in `files`.
     """
     root = get_storage_root()
     normalized_prefix = _normalize_prefix(prefix)
@@ -159,6 +163,7 @@ def make_breadcrumbs(prefix: str) -> list:
     running = ""
     for part in prefix.split("/"):
         running = (running + "/" + part).lstrip("/")
+        # Breadcrumb prefix values are reusable as `/api/browse?prefix=...`.
         breadcrumbs.append({"name": part, "prefix": running})
 
     return breadcrumbs
