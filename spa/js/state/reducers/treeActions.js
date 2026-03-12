@@ -125,7 +125,8 @@ function createTreeActions(deps) {
     }
 
     const current = getState();
-    if (current.route === "viewer" && current.viewMode === "inspect") {
+    if (current.route === "viewer") {
+      // Breadcrumb navigation should update sidebar metadata even when the main panel stays in display mode.
       void actions.loadMetadata(normalizedPath);
     }
   },
@@ -269,16 +270,15 @@ function createTreeActions(deps) {
     const current = getState();
     if (nodeType === "group") {
       void actions.loadTreeChildren(normalizedPath);
-      if (current.viewMode === "inspect") {
-        void actions.loadMetadata(normalizedPath);
-      }
+      // Groups only affect the tree + sidebar metadata panel.
+      void actions.loadMetadata(normalizedPath);
       return;
     }
 
+    // Datasets drive both sidebar metadata and the main display preview.
+    void actions.loadMetadata(normalizedPath);
     if (current.viewMode === "display") {
       void actions.loadPreview(normalizedPath);
-    } else {
-      void actions.loadMetadata(normalizedPath);
     }
   },
 

@@ -83,14 +83,12 @@ function createViewActions(deps) {
     setState({ sidebarOpen: !!open });
   },
 
-  // Switches between "inspect" and "display" modes; entering display kicks off a preview load for the selected dataset
+  // SPA shell is display-only in the main panel; keep viewMode pinned to display if any legacy caller invokes this.
   setViewMode(viewMode) {
-    const mode = viewMode === "display" ? "display" : "inspect";
+    void viewMode;
+    const mode = "display";
     setState({
       viewMode: mode,
-      ...(mode === "inspect"
-        ? { matrixFullEnabled: false, lineFullEnabled: false, heatmapFullEnabled: false }
-        : {}),
     });
 
     const current = getState();
@@ -98,18 +96,11 @@ function createViewActions(deps) {
       return;
     }
 
-    if (mode === "display") {
-      if (current.selectedNodeType === "dataset") {
-        void actions.loadPreview(current.selectedPath);
-      }
-    } else {
-      const shouldLoadMetadata =
-        (!current.metadata || current.metadata.path !== current.selectedPath || current.metadataError);
-
-      if (shouldLoadMetadata) {
-        void actions.loadMetadata(current.selectedPath);
-      }
+    if (current.selectedNodeType === "dataset") {
+      void actions.loadPreview(current.selectedPath);
     }
+
+    void actions.loadMetadata(current.selectedPath);
   },
 
   setDisplayTab(tab) {

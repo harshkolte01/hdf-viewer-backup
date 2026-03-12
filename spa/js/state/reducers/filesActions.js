@@ -141,7 +141,7 @@ function createFileActions(deps) {
       previewError: null,
       previewRequestKey: null,
       previewRequestInFlight: false,
-      viewMode: "inspect",
+      viewMode: "display",
       displayTab: "line",
       notation: "auto",
       lineGrid: true,
@@ -158,6 +158,8 @@ function createFileActions(deps) {
     });
 
     void actions.loadTreeChildren("/");
+    // Prime the sidebar metadata panel with root-level metadata as soon as a file opens.
+    void actions.loadMetadata("/");
   },
 
   // Resets route to "home", clears all viewer state, and marks viewerBlocked to prevent dataset rendering
@@ -182,7 +184,7 @@ function createFileActions(deps) {
       previewError: null,
       previewRequestKey: null,
       previewRequestInFlight: false,
-      viewMode: "inspect",
+      viewMode: "display",
       displayTab: "line",
       lineCompareEnabled: false,
       lineCompareItems: [],

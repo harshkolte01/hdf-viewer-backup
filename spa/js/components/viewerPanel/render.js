@@ -13,19 +13,16 @@
   }
   var moduleState = ensurePath(ns, "components.viewerPanel.render");
 
-// Top-level render entry point: sets a panel mode class and delegates to inspect or display content builders
+// Top-level render entry point: the SPA shell now keeps the main area display-only; metadata lives in the sidebar.
 function renderViewerPanel(state) {
-  const isDisplay = state.viewMode === "display";
-  // Line full view has a special panel CSS class that removes min-height constraints
   const isLineFixedPage =
-    isDisplay &&
     (state.displayTab || "line") === "line" &&
     state.lineFullEnabled === true;
 
   return `
-    <div class="viewer-panel ${isDisplay ? "is-display" : "is-inspect"}">
+    <div class="viewer-panel is-display">
       <div class="panel-canvas ${isLineFixedPage ? "panel-canvas-line-fixed" : ""}">
-        ${isDisplay ? renderDisplayContent(state) : renderInspectContent(state)}
+        ${renderDisplayContent(state)}
       </div>
     </div>
   `;

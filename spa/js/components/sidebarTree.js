@@ -269,6 +269,35 @@ function renderNode(node, state, compareContext = null) {
     </li>
   `;
 }
+
+function renderSidebarMetadata(state) {
+  // Reuse the shared metadata markup so the sidebar stays aligned with the
+  // metadata formatting logic already maintained in viewerPanel/render/sections.js.
+  const fallback = `
+    <div class="sidebar-metadata-panel">
+      <div class="panel-state">
+        <div class="state-text">Metadata panel is unavailable.</div>
+      </div>
+    </div>
+  `;
+
+  const content =
+    typeof renderMetadataPanelContent === "function"
+      ? renderMetadataPanelContent(state, { wrapperClass: "sidebar-metadata-content" })
+      : fallback;
+
+  return `
+    <div id="metadata-panel" class="sidebar-section sidebar-section-metadata">
+      <div class="section-label">Metadata</div>
+      <div class="sidebar-panel-scroll sidebar-metadata-scroll">
+        <div class="sidebar-metadata-panel">
+          ${content}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderSidebarTree(state) {
   const treeRoot = {
     type: "group",
@@ -304,7 +333,7 @@ function renderSidebarTree(state) {
         </div>
         ${state.selectedFile ? '<div class="file-pill">Active file</div>' : ""}
       </div>
-      <div id="tree-panel" class="sidebar-section">
+      <div id="tree-panel" class="sidebar-section sidebar-section-tree">
         <div class="section-label">Structure</div>
         <div class="sidebar-tree ${compareTreeScrollEnabled ? "is-compare-mode" : ""}">
           <ul id="tree-list" class="tree-root">
@@ -313,6 +342,8 @@ function renderSidebarTree(state) {
         </div>
         <div id="tree-status" class="tree-status" aria-live="polite"></div>
       </div>
+      <!-- SPA-specific layout: metadata lives below the tree instead of in a main-pane inspect tab. -->
+      ${renderSidebarMetadata(state)}
     </aside>
   `;
 }
@@ -431,4 +462,3 @@ function bindSidebarTreeEvents(root, actions) {
     ns.core.registerModule("components/sidebarTree");
   }
 })(typeof window !== "undefined" ? window : globalThis);
-

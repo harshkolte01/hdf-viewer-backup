@@ -1,60 +1,43 @@
 # js/views
 
-The `views/` layer sits between app bootstrap and the component layer. It owns the **viewer shell** — the static outer layout that does not change between dataset selections — and orchestrates per-region content updates.
+The `views/` layer owns the SPA shell and updates it region by region.
 
 ## Files
 
 ### `viewerView.js`
-**What it does**: The top-level shell renderer and UI event coordinator. Almost everything the user interacts with goes through this file.
 
-**Responsibilities**:
+What it does:
+- validates the shell DOM contract
+- renders the sidebar, topbar, subbar, and main display pane
+- coordinates shell-level delegated events
+- routes export actions to the active runtime
 
-1. **Shell validation**: calls `domRefs.validate()` on boot to ensure all required IDs exist in the HTML
-2. **Region-by-region updates**: instead of replacing the full page, updates specific shell regions:
-   - Sidebar tree HTML → updates `#tree-list` + `#tree-status`
-   - Topbar breadcrumb + view mode toggle buttons
-   - Subbar tabs + action buttons
-   - Display pane / inspect pane content via `renderViewerPanel(state)`
-   - Status messages: `#display-status`, `#inspect-status`, `#global-status`
-3. **Delegated event handling**: a single click listener on the viewer root handles:
-   - Back to files button
-   - Sidebar toggle / close
-   - Fullscreen button
-   - View mode segmented buttons (`[data-view-mode]`)
-   - Subbar tab buttons (`[data-tab]`)
-   - Export menu items (`[data-export-action]`)
-   - Line compare controls (remove dataset, toggle enable)
-   - Display config axis changes
-4. **Export routing**: reads `shell.__exportApi` published by the active runtime and dispatches the correct export method (CSV client-side, CSV server-side, PNG)
-5. **Responsive sidebar**: manages `sidebar-collapsed` CSS class on `#viewer-app` based on viewport width and `state.sidebarOpen`
+Current SPA responsibilities:
+1. render the sidebar tree and the metadata panel below it
+2. render the breadcrumb, back button, and fullscreen button
+3. render the display subbar for matrix, line, and heatmap controls
+4. render the main display pane through `renderViewerPanel(state)`
+5. keep legacy inspect nodes hidden for compatibility
 
-**Key exported functions (also on `window.*`)**:
-- `renderViewerView(state, options)` — performs all DOM updates for a given state snapshot
-- `bindViewerViewEvents(root, actions)` — attaches the delegated event listener to the viewer root
-- `validateViewerDomIds(doc)` — proxied from `domRefs.validate` for use by `app-viewer.js`
-- `initViewerViewTemplate()` — async init hook (currently a no-op, reserved for future async template loading)
+Main delegated events:
+- sidebar open/close
+- back to files
+- fullscreen
+- breadcrumb selection
+- display tab changes
+- export menu interactions
+- line and heatmap toolbar controls exposed through shared actions
 
-**Used by**: `app-viewer.js` calls `renderViewerView` and `bindViewerViewEvents` on every state update via the subscribe loop
+## Render Loop
 
-## How re-renders work
-
-```
-[state changes via setState]
-  ↓
-subscribe listener (queueRender) triggers
-  ↓
-requestAnimationFrame fires renderApp()
-  ↓
-renderViewerView(state, { missingFile })
-  ↓
-  Updates sidebar: renderSidebarTree(state, dom) → dom.treeList.innerHTML = ...
-  Updates topbar:  breadcrumb path, active view mode button
-  Updates subbar:  tab buttons, action buttons
-  Updates panel:   dom.displayPane.innerHTML = renderViewerPanel(state)
-  Updates status:  dom.globalStatus / displayStatus / inspectStatus
-  ↓
-bindViewerViewEvents(root, actions)
-  ↓
-  bindSidebarTreeEvents    ← wires tree click events to actions.*
-  bindViewerPanelEvents    ← wires panel buttons + inits runtimes
+```text
+setState(...)
+  -> subscribe(queueRender)
+  -> requestAnimationFrame(renderApp)
+  -> renderViewerView(state, { missingFile })
+    -> renderSidebarTree(state)
+    -> renderViewerTopBar(state)
+    -> renderPreviewToolbar(state)
+    -> renderViewerPanel(state)
+  -> bindViewerViewEvents(root, actions)
 ```

@@ -548,7 +548,11 @@ function renderDisplayContent(state) {
   `;
 }
 
-function renderInspectContent(state) {
+function renderMetadataPanelContent(state, options) {
+  // The SPA sidebar and any legacy inspect callers both consume this markup,
+  // so keep metadata presentation logic centralized here.
+  const opts = options && typeof options === "object" ? options : {};
+  const wrapperClass = opts.wrapperClass ? ` ${opts.wrapperClass}` : "";
   const hasSelection =
     state.selectedPath !== "/" ||
     state.metadataLoading ||
@@ -557,7 +561,7 @@ function renderInspectContent(state) {
 
   if (!hasSelection) {
     return `
-      <div class="panel-state">
+      <div class="panel-state${wrapperClass}">
         <div class="state-text">Select an item from the tree to view its metadata.</div>
       </div>
     `;
@@ -565,7 +569,7 @@ function renderInspectContent(state) {
 
   if (state.metadataLoading) {
     return `
-      <div class="panel-state">
+      <div class="panel-state${wrapperClass}">
         <div class="loading-spinner"></div>
         <div class="state-text">Loading metadata...</div>
       </div>
@@ -574,7 +578,7 @@ function renderInspectContent(state) {
 
   if (state.metadataError) {
     return `
-      <div class="panel-state error">
+      <div class="panel-state error${wrapperClass}">
         <div class="state-text error-text">${escapeHtml(state.metadataError)}</div>
       </div>
     `;
@@ -583,7 +587,7 @@ function renderInspectContent(state) {
   const meta = state.metadata;
   if (!meta) {
     return `
-      <div class="panel-state">
+      <div class="panel-state${wrapperClass}">
         <div class="state-text">No metadata available.</div>
       </div>
     `;
@@ -632,7 +636,7 @@ function renderInspectContent(state) {
   }
 
   return `
-    <div class="metadata-simple">
+    <div class="metadata-simple${wrapperClass}">
       ${infoRows
         .map(
           ([label, value, mono]) => `
@@ -648,9 +652,17 @@ function renderInspectContent(state) {
     </div>
   `;
 }
+
+function renderInspectContent(state) {
+  return renderMetadataPanelContent(state);
+}
   if (typeof renderDisplayContent !== "undefined") {
     moduleState.renderDisplayContent = renderDisplayContent;
     global.renderDisplayContent = renderDisplayContent;
+  }
+  if (typeof renderMetadataPanelContent !== "undefined") {
+    moduleState.renderMetadataPanelContent = renderMetadataPanelContent;
+    global.renderMetadataPanelContent = renderMetadataPanelContent;
   }
   if (typeof renderInspectContent !== "undefined") {
     moduleState.renderInspectContent = renderInspectContent;

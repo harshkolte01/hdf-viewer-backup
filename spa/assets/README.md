@@ -1,12 +1,15 @@
 # assets
 
-Static visual assets for the viewer shell and related UI pages. Files here are referenced directly from HTML or CSS — no JavaScript import pipeline is required.
+Static visual assets for the SPA viewer shell and related UI pages.
+
+Files here are referenced directly from HTML or CSS. No build step is required.
 
 ## Files
 
 ### `logo.svg`
-**What it does**: The application logo SVG. Can be used in the navbar, page title area, or favicon by referencing the file path as an `<img src>` or CSS `background-image`.
 
-**Format**: Scalable Vector Graphic (SVG) — renders sharply at any display resolution including HiDPI/Retina screens.
+What it does:
+- application logo SVG for optional branding
 
-**Used by**: currently available for use; add a reference in `index.html` or `app.css` when branding is needed.
+Used by:
+- currently available for use from `spa/index.html` or SPA stylesheets when branding is needed

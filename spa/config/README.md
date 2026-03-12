@@ -1,27 +1,38 @@
 # config
 
-Runtime configuration bootstrap for `viewer_html`. This folder holds the **single file that must execute before any viewer JavaScript module runs**.
+Runtime configuration bootstrap for the `spa/` viewer shell.
 
-## Files
+## File
 
 ### `runtime-config.js`
-**What it does**: Guarantees that `window.__CONFIG__` exists and contains a default `API_BASE_URL`. This lets `js/core/config.js` safely read `window.__CONFIG__.API_BASE_URL` without null-checking.
 
-**Default value**: `http://localhost:5000` (points to the backend Flask app running locally)
+What it does:
+- guarantees `window.__CONFIG__` exists
+- provides a default `API_BASE_URL`
+- gives `spa/js/core/config.js` a stable place to read backend configuration from
 
-**How to change the API base URL for a deployment**: Edit this file or inject the value from the server-side before the page loads:
+Default value:
+
 ```js
-// In runtime-config.js (or a server-rendered script tag above it):
-window.__CONFIG__.API_BASE_URL = "https://your-api-server.example.com";
+window.__CONFIG__.API_BASE_URL = "http://localhost:5000";
 ```
 
-**Load order**: This file is the **very first `<script>` tag** in `index.html`, before all `js/` modules. If it runs after `js/core/config.js`, `API_BASE_URL` will default to `http://localhost:5000`.
+Load order:
+- `spa/index.html` loads this before the SPA JavaScript modules
+- if it runs after `spa/js/core/config.js`, the viewer falls back to `http://localhost:5000`
 
-**Used by**: `js/core/config.js` reads `window.__CONFIG__.API_BASE_URL` to build all API endpoint URLs
+Used by:
+- `spa/js/core/config.js`
+- all API calls built through `spa/js/api/client.js` and `spa/js/api/hdf5Service.js`
 
-## Deployment pattern
+## SPA Notes
 
-In a production deployment where the frontend is served from a CDN or static host:
-1. Generate `runtime-config.js` at deploy time with the correct `API_BASE_URL`
-2. Or inject a `<script>` block above it in the HTML template that sets `window.__CONFIG__` before this file loads
-3. All other source files remain unchanged — this is the **only file** deployments need to modify
+- `runtime-config.js` only controls the backend base URL.
+- Host file selection is handled separately by the URL bridge in `spa/index.html`.
+- Supported incoming params are still normalized to `?file=...` before `spa/js/app-viewer.js` boots.
+
+## Deployment
+
+1. Generate `runtime-config.js` with the correct backend URL for that environment.
+2. Or inject `window.__CONFIG__` from the host page before `runtime-config.js` runs.
+3. Leave the rest of the SPA source unchanged.

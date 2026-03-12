@@ -126,6 +126,20 @@
             Waiting for file query parameter.
           </div>
         </div>
+
+        <!-- SPA-only metadata mount: the runtime now renders metadata below the tree. -->
+        <div id="metadata-panel" class="sidebar-section">
+          <div class="section-label">Metadata</div>
+          <div class="sidebar-panel-scroll sidebar-metadata-scroll">
+            <div class="sidebar-metadata-panel">
+              <div class="panel-state">
+                <div class="state-text">
+                  Select an item from the tree to view its metadata.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </aside>
 
       <section id="viewer-main" class="viewer-main">
@@ -199,18 +213,6 @@
               </svg>
               <span class="btn-label">Fullscreen</span>
             </button>
-            <div class="segmented">
-              <button class="seg-btn" data-view-mode="display" type="button">
-                Display
-              </button>
-              <button
-                class="seg-btn active"
-                data-view-mode="inspect"
-                type="button"
-              >
-                Inspect
-              </button>
-            </div>
           </div>
         </div>
 
@@ -221,7 +223,8 @@
 
         <div id="viewer-panel" class="viewer-panel">
           <div id="display-pane" hidden></div>
-          <div id="inspect-pane"></div>
+          <!-- Kept for DOM compatibility with shared modules; SPA keeps this hidden. -->
+          <div id="inspect-pane" hidden></div>
           <div
             id="display-status"
             class="panel-status info"
@@ -233,6 +236,7 @@
             class="panel-status info"
             role="status"
             aria-live="polite"
+            hidden
           ></div>
         </div>
       </section>

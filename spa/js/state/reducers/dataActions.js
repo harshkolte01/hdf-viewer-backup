@@ -218,10 +218,10 @@ function createDataActions(deps) {
       const metadata = response.metadata || null;
       const latest = getState();
 
+      // Metadata is sidebar-owned in the SPA shell, so only the file/path match matters now.
       if (
         latest.selectedFile === snapshot.selectedFile &&
-        latest.selectedPath === targetPath &&
-        latest.viewMode === "inspect"
+        latest.selectedPath === targetPath
       ) {
         setState((prev) => ({
           metadata,
@@ -242,8 +242,7 @@ function createDataActions(deps) {
       const latest = getState();
       if (
         latest.selectedFile === snapshot.selectedFile &&
-        latest.selectedPath === targetPath &&
-        latest.viewMode === "inspect"
+        latest.selectedPath === targetPath
       ) {
         setState({
           metadataLoading: false,

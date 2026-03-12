@@ -24,6 +24,7 @@
     "tree-panel",
     "tree-list",
     "tree-status",
+    "metadata-panel",
     "viewer-main",
     "viewer-topbar",
     "breadcrumb-file",
@@ -54,6 +55,7 @@
       treePanel: rootDoc.getElementById("tree-panel"),
       treeList: rootDoc.getElementById("tree-list"),
       treeStatus: rootDoc.getElementById("tree-status"),
+      metadataPanel: rootDoc.getElementById("metadata-panel"),
       viewerMain: rootDoc.getElementById("viewer-main"),
       viewerTopbar: rootDoc.getElementById("viewer-topbar"),
       breadcrumbFile: rootDoc.getElementById("breadcrumb-file"),
@@ -162,4 +164,3 @@
     ns.core.registerModule("core/domRefs");
   }
 })(typeof window !== "undefined" ? window : globalThis);
-

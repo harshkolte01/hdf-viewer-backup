@@ -163,10 +163,6 @@
           <svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg>
           <span class="btn-label">Fullscreen</span>
         </button>
-        <div class="segmented">
-          <button class="seg-btn ${state.viewMode === "display" ? "active" : ""}" data-view-mode="display" type="button">Display</button>
-          <button class="seg-btn ${state.viewMode === "inspect" ? "active" : ""}" data-view-mode="inspect" type="button">Inspect</button>
-        </div>
       </div>
     `;
   }
@@ -406,7 +402,6 @@
     var missingFile = opts.missingFile === true;
     var treeStatus = resolveTreeStatus(state, missingFile);
     var displayStatus = resolveDisplayStatus(state, missingFile);
-    var inspectStatus = resolveInspectStatus(state, missingFile);
     var globalStatus = resolveGlobalStatus(state, missingFile);
 
     domRefs.toggleClass(refs.viewerApp, "sidebar-open", !!state.sidebarOpen);
@@ -421,7 +416,9 @@
     }
     domRefs.setHtml(refs.viewerTopbar, renderViewerTopBar(state));
 
-    if (state.viewMode === "display" && !missingFile) {
+    // The SPA shell keeps the main area display-only, so the subbar follows
+    // file availability rather than a display/inspect mode toggle.
+    if (!missingFile) {
       domRefs.setHidden(refs.viewerSubbar, false);
       domRefs.setHtml(refs.viewerSubbar, renderPreviewToolbar(state));
     } else {
@@ -440,24 +437,22 @@
     if (missingFile) {
       var missingPanel = renderMissingFilePanel(opts.deepLinkExample);
       domRefs.setHidden(refs.displayPane, false);
-      domRefs.setHidden(refs.inspectPane, false);
+      domRefs.setHidden(refs.inspectPane, true);
       domRefs.setHtml(refs.displayPane, missingPanel);
-      domRefs.setHtml(refs.inspectPane, missingPanel);
-    } else if (state.viewMode === "display") {
+      domRefs.setHtml(refs.inspectPane, "");
+    } else {
+      // Metadata is rendered inside the sidebar; the main pane always hosts display content.
       domRefs.setHidden(refs.displayPane, false);
       domRefs.setHidden(refs.inspectPane, true);
       domRefs.setHtml(refs.displayPane, panelInner);
       domRefs.setHtml(refs.inspectPane, "");
-    } else {
-      domRefs.setHidden(refs.displayPane, true);
-      domRefs.setHidden(refs.inspectPane, false);
-      domRefs.setHtml(refs.displayPane, "");
-      domRefs.setHtml(refs.inspectPane, panelInner);
     }
 
     domRefs.setStatus(refs.treeStatus, treeStatus.message, treeStatus.tone);
     domRefs.setStatus(refs.displayStatus, displayStatus.message, displayStatus.tone);
-    domRefs.setStatus(refs.inspectStatus, inspectStatus.message, inspectStatus.tone);
+    // Legacy inspect status element remains hidden so older DOM expectations still validate.
+    domRefs.setStatus(refs.inspectStatus, "", "info");
+    domRefs.setHidden(refs.inspectStatus, true);
     domRefs.setStatus(refs.globalStatus, globalStatus.message, globalStatus.tone);
 
     return "";

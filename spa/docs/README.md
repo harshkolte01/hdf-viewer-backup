@@ -1,36 +1,38 @@
-# Viewer HTML Docs
+# SPA Docs
 
-Documentation for the `viewer_html/` frontend.
+Documentation entry point for the `spa/` frontend copy.
 
-## Start here
+## Start Here
 
-- `VIEWER_HTML.md` - quick onboarding guide (what this frontend does and how to run it)
-- `VIEWER_HTML_IMPLEMENTATION.md` - full implementation walkthrough in code order
-- `API_REFERENCE.md` - frontend-to-backend API usage and payload expectations
-- `FILE_MAP.md` - file-by-file ownership map
-- `OPERATIONS_AND_RUNBOOK.md` - run/deploy/troubleshooting guide
-- `TESTING_AND_VALIDATION.md` - practical validation checklist
-- `TREE_STRUCTURE.md` - tree IDs, files, and `data-tree-*` hooks
-- `METADATA_PANEL.md` - metadata panel IDs, files, and load/render flow
-- `DISPLAY_PANEL.md` - display panel IDs, preview/full-data files, and display control hooks
-- `VIEW_SWITCHES_AND_BUTTONS.md` - shell-level switch buttons, breadcrumbs, sidebar, and fullscreen wiring
+- [../HOST_FILE_SELECTION_GUIDE.md](../HOST_FILE_SELECTION_GUIDE.md) - how a host UI passes `fileKey` into `spa/index.html`
+- `VIEWER_HTML.md` - shared viewer runtime overview
+- `VIEWER_HTML_IMPLEMENTATION.md` - code-order walkthrough for the shared runtime modules copied into `spa/js`
+- `API_REFERENCE.md` - frontend-to-backend API usage
+- `FILE_MAP.md` - ownership map for the shared viewer codebase
+- `OPERATIONS_AND_RUNBOOK.md` - run and troubleshooting notes
+- `TESTING_AND_VALIDATION.md` - validation checklist
 
-## Audience
+## SPA-Specific Notes
 
-These docs are for:
-- new developers joining the project
-- reviewers checking behavior and integration points
-- maintainers debugging runtime UI/data flows
+- `spa/index.html` is the shell entry point.
+- The SPA main panel is display-only.
+- Metadata is rendered below the tree in the left sidebar.
+- The old inspect pane remains in the DOM only for compatibility with shared code paths.
+- Some detailed docs in this folder still describe the shared `viewer_html` shell. When they conflict with the SPA shell, prefer the code in:
+  - `spa/index.html`
+  - `spa/js/views/viewerView.js`
+  - `spa/js/components/sidebarTree.js`
+  - `spa/js/components/viewerPanel/render/sections.js`
 
-## Source of truth
+## Source Of Truth
 
-Main implementation files:
-- `viewer_html/index.html`
-- `viewer_html/config/runtime-config.js`
-- `viewer_html/js/app-viewer.js`
-- `viewer_html/js/views/viewerView.js`
-- `viewer_html/js/api/*.js`
-- `viewer_html/js/state/*.js`
-- `viewer_html/js/components/viewerPanel/runtime/*.js`
+Primary SPA implementation files:
+- `spa/index.html`
+- `spa/config/runtime-config.js`
+- `spa/js/app-viewer.js`
+- `spa/js/views/viewerView.js`
+- `spa/js/components/sidebarTree.js`
+- `spa/js/components/viewerPanel/render/sections.js`
+- `spa/js/state/*.js`
 
-If docs and code differ, code is authoritative. Update docs in the same change when behavior changes.
+If docs and code differ, the code is authoritative.

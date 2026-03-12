@@ -44,7 +44,7 @@ const state = {
   treeErrors: new Map(),             // path -> error message for failed child loads
 
   // --- Panel view mode ---
-  viewMode: "inspect",              // 'inspect' = metadata view; 'display' = data visualization
+  viewMode: "display",              // SPA shell keeps the main area on display; metadata now lives in the sidebar
 
   // --- Metadata and preview data ---
   metadata: null,
