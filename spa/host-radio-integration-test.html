@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HDF Viewer Host Integration Test</title>
+
+    <link rel="stylesheet" href="./css/tokens.css" />
+    <link rel="stylesheet" href="./css/app.css" />
+    <link rel="stylesheet" href="./css/home.css" />
+    <link rel="stylesheet" href="./css/viewer.css" />
+    <link rel="stylesheet" href="./css/viewer-panel.css" />
+    <link rel="stylesheet" href="./css/components/tree.css" />
+    <link rel="stylesheet" href="./css/components/table.css" />
+    <link rel="stylesheet" href="./css/components/charts.css" />
+
+    <style>
+      body.host-layout {
+        min-height: 100vh;
+        min-height: 100dvh;
+        background:
+          radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 28%),
+          radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 22%),
+          var(--bg-primary);
+      }
+
+      .host-shell {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1.5rem 1.5rem 1rem;
+      }
+
+      .host-banner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.9fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .host-card {
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid rgba(37, 99, 235, 0.16);
+        border-radius: 1rem;
+        box-shadow: 0 20px 45px -28px rgba(15, 23, 42, 0.34);
+        backdrop-filter: blur(14px);
+      }
+
+      .host-intro {
+        padding: 1.4rem 1.5rem;
+      }
+
+      .host-eyebrow {
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--primary);
+        margin-bottom: 0.55rem;
+      }
+
+      .host-title {
+        margin: 0 0 0.55rem;
+        font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+        line-height: 1.08;
+        color: var(--text-primary);
+      }
+
+      .host-copy {
+        margin: 0;
+        max-width: 58ch;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+
+      .host-status {
+        padding: 1.4rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      .host-status-label {
+        margin: 0;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+      }
+
+      .host-status code {
+        display: block;
+        padding: 0.85rem 0.95rem;
+        border-radius: 0.85rem;
+        background: rgba(37, 99, 235, 0.08);
+        color: var(--text-primary);
+        font-size: 0.86rem;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+
+      .host-grid {
+        display: grid;
+        grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.05fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .host-panel {
+        padding: 1.2rem;
+      }
+
+      .host-panel-title {
+        margin: 0 0 0.8rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .host-panel-copy {
+        margin: 0 0 1rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .host-radio-list {
+        display: grid;
+        gap: 0.7rem;
+      }
+
+      .host-radio {
+        display: flex;
+        gap: 0.8rem;
+        align-items: flex-start;
+        padding: 0.9rem 1rem;
+        border: 1px solid rgba(37, 99, 235, 0.12);
+        border-radius: 0.9rem;
+        background: rgba(248, 250, 255, 0.92);
+        cursor: pointer;
+        transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      .host-radio:hover {
+        border-color: rgba(37, 99, 235, 0.35);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px -20px rgba(37, 99, 235, 0.7);
+      }
+
+      .host-radio input {
+        margin-top: 0.2rem;
+        accent-color: var(--primary);
+      }
+
+      .host-radio strong {
+        display: block;
+        color: var(--text-primary);
+        font-size: 0.94rem;
+      }
+
+      .host-radio span {
+        display: block;
+        color: var(--text-secondary);
+        font-size: 0.82rem;
+        line-height: 1.45;
+        word-break: break-word;
+      }
+
+      .host-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        margin-top: 1rem;
+      }
+
+      .host-btn {
+        border: none;
+        border-radius: 999px;
+        background: var(--primary);
+        color: #fff;
+        padding: 0.75rem 1.1rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 12px 24px -18px rgba(37, 99, 235, 0.9);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      }
+
+      .host-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 18px 30px -18px rgba(37, 99, 235, 0.72);
+      }
+
+      .host-btn.is-secondary {
+        background: rgba(15, 23, 42, 0.08);
+        color: var(--text-primary);
+        box-shadow: none;
+      }
+
+      .host-btn.is-secondary:hover {
+        background: rgba(15, 23, 42, 0.12);
+      }
+
+      .host-field {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .host-field label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .host-input {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 1px solid rgba(37, 99, 235, 0.18);
+        border-radius: 0.85rem;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text-primary);
+        font-size: 0.92rem;
+      }
+
+      .host-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+
+      .host-hint {
+        margin: 0.8rem 0 0;
+        color: var(--text-secondary);
+        font-size: 0.84rem;
+        line-height: 1.5;
+      }
+
+      .host-log {
+        margin-top: 1rem;
+        padding: 0.9rem 1rem;
+        border-radius: 0.85rem;
+        background: rgba(15, 23, 42, 0.05);
+        color: var(--text-primary);
+        font-size: 0.84rem;
+        line-height: 1.55;
+      }
+
+      body.host-layout #viewer-app.viewer-page {
+        min-height: 100vh;
+        min-height: 100dvh;
+        height: 100vh;
+        height: 100dvh;
+        margin-top: 0;
+      }
+
+      #global-status {
+        margin: 0;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        border-radius: 0;
+      }
+
+      @media (max-width: 1024px) {
+        .host-banner,
+        .host-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .host-shell {
+          padding: 1rem 1rem 0.75rem;
+        }
+
+        .host-intro,
+        .host-status,
+        .host-panel {
+          padding: 1rem;
+        }
+      }
+    </style>
+
+    <script>
+      var file = "hdf5/sample.hdf5";
+    </script>
+  </head>
+  <body class="host-layout">
+    <div id="host-selector">
+      <div class="host-shell">
+        <div class="host-banner">
+          <section class="host-card host-intro">
+            <div class="host-eyebrow">Host Page Simulation</div>
+            <h1 class="host-title">Company page + viewer integration test</h1>
+            <p class="host-copy">
+              This page simulates the PHP host page. The radio list behaves like the
+              company file listing, writes the selected backend path into the global
+              <code>file</code> variable, and then re-syncs the viewer.
+            </p>
+          </section>
+
+          <aside class="host-card host-status">
+            <p class="host-status-label">Current global file variable</p>
+            <code id="host-current-file">hdf5/sample.hdf5</code>
+          </aside>
+        </div>
+
+        <div class="host-grid">
+          <section class="host-card host-panel">
+            <h2 class="host-panel-title">File listing with radio buttons</h2>
+            <p class="host-panel-copy">
+              Pick a file below. On load, the first value already sits inside the
+              global <code>file</code> variable so you can verify boot-time auto-open.
+            </p>
+
+            <div class="host-radio-list">
+              <label class="host-radio">
+                <input
+                  type="radio"
+                  name="host-file-select"
+                  value="hdf5/sample.hdf5"
+                  checked
+                />
+                <div>
+                  <strong>sample.hdf5</strong>
+                  <span>Backend key: <code>hdf5/sample.hdf5</code></span>
+                </div>
+              </label>
+
+              <label class="host-radio">
+                <input
+                  type="radio"
+                  name="host-file-select"
+                  value="test1.h5"
+                />
+                <div>
+                  <strong>test1.h5</strong>
+                  <span>Backend key: <code>test1.h5</code></span>
+                </div>
+              </label>
+
+              <label class="host-radio">
+                <input
+                  type="radio"
+                  name="host-file-select"
+                  value="Folder_1/random_05.h5"
+                />
+                <div>
+                  <strong>random_05.h5</strong>
+                  <span>Backend key: <code>Folder_1/random_05.h5</code></span>
+                </div>
+              </label>
+            </div>
+
+            <div class="host-actions">
+              <button id="host-apply-selected" class="host-btn" type="button">
+                Apply selected radio
+              </button>
+            </div>
+          </section>
+
+          <section class="host-card host-panel">
+            <h2 class="host-panel-title">Manual file variable test</h2>
+            <p class="host-panel-copy">
+              Use this field if your real backend key is different from the sample
+              values above.
+            </p>
+
+            <div class="host-field">
+              <label for="host-custom-file">Backend file key</label>
+              <input
+                id="host-custom-file"
+                class="host-input"
+                type="text"
+                value="hdf5/sample.hdf5"
+                placeholder="Example: Folder_1/random_05.h5"
+              />
+            </div>
+
+            <div class="host-actions">
+              <button id="host-apply-custom" class="host-btn" type="button">
+                Set global file and sync viewer
+              </button>
+              <button id="host-copy-selected" class="host-btn is-secondary" type="button">
+                Copy selected radio to input
+              </button>
+            </div>
+
+            <div id="host-log" class="host-log">
+              Expected result: on initial load the viewer should try opening
+              <code>hdf5/sample.hdf5</code> because that value is already assigned to
+              the global <code>file</code> variable before the viewer boot scripts run.
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function hostIntegrationTestPage() {
+        function normalizeFileKey(value) {
+          if (typeof value !== "string") {
+            return "";
+          }
+
+          return value.trim();
+        }
+
+        function getSelectedRadioValue() {
+          var selected = document.querySelector('input[name="host-file-select"]:checked');
+          return selected ? normalizeFileKey(selected.value) : "";
+        }
+
+        function updateHostFileDisplay(value) {
+          var output = document.getElementById("host-current-file");
+          if (!output) {
+            return;
+          }
+
+          output.textContent = value || "(empty)";
+        }
+
+        function updateHostLog(message) {
+          var log = document.getElementById("host-log");
+          if (!log) {
+            return;
+          }
+
+          log.textContent = message;
+        }
+
+        function syncViewerFromGlobalFile(sourceLabel) {
+          var nextFileKey = normalizeFileKey(window.file);
+          updateHostFileDisplay(nextFileKey);
+
+          if (!nextFileKey) {
+            updateHostLog("Global file is empty. Set a backend file key first.");
+            return;
+          }
+
+          if (typeof window.syncHostFileVariable === "function") {
+            window.syncHostFileVariable();
+            updateHostLog(
+              'Viewer sync triggered from ' +
+                sourceLabel +
+                '. Global file = "' +
+                nextFileKey +
+                '".'
+            );
+            return;
+          }
+
+          updateHostLog(
+            'Viewer helper is not ready yet. Global file is "' + nextFileKey + '".'
+          );
+        }
+
+        function applySelectedRadio() {
+          var selectedFileKey = getSelectedRadioValue();
+          var customInput = document.getElementById("host-custom-file");
+
+          window.file = selectedFileKey;
+          if (customInput) {
+            customInput.value = selectedFileKey;
+          }
+
+          syncViewerFromGlobalFile("selected radio");
+        }
+
+        function applyCustomValue() {
+          var customInput = document.getElementById("host-custom-file");
+          var nextFileKey = customInput ? normalizeFileKey(customInput.value) : "";
+
+          window.file = nextFileKey;
+          syncViewerFromGlobalFile("custom input");
+        }
+
+        function copySelectedRadioToInput() {
+          var customInput = document.getElementById("host-custom-file");
+          if (!customInput) {
+            return;
+          }
+
+          customInput.value = getSelectedRadioValue();
+          updateHostLog("Copied selected radio value into the custom backend key input.");
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          updateHostFileDisplay(normalizeFileKey(window.file));
+
+          var applySelectedButton = document.getElementById("host-apply-selected");
+          if (applySelectedButton) {
+            applySelectedButton.addEventListener("click", applySelectedRadio);
+          }
+
+          var applyCustomButton = document.getElementById("host-apply-custom");
+          if (applyCustomButton) {
+            applyCustomButton.addEventListener("click", applyCustomValue);
+          }
+
+          var copySelectedButton = document.getElementById("host-copy-selected");
+          if (copySelectedButton) {
+            copySelectedButton.addEventListener("click", copySelectedRadioToInput);
+          }
+
+          document.addEventListener("change", function (event) {
+            var radio = event.target;
+            if (!(radio instanceof HTMLInputElement)) {
+              return;
+            }
+
+            if (radio.type !== "radio" || radio.name !== "host-file-select" || !radio.checked) {
+              return;
+            }
+
+            applySelectedRadio();
+          });
+        });
+      })();
+    </script>
+
+    <div id="viewer-app" class="viewer-page sidebar-collapsed">
+      <aside id="viewer-sidebar" class="viewer-sidebar">
+        <div id="sidebar-header" class="sidebar-top">
+          <div class="sidebar-top-row">
+            <div class="sidebar-title">HDF Viewer</div>
+            <button
+              id="sidebar-close-btn"
+              class="sidebar-close-btn"
+              type="button"
+              aria-label="Close sidebar"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
+                <line x1="4" y1="4" x2="14" y2="14"></line>
+                <line x1="14" y1="4" x2="4" y2="14"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="tree-panel" class="sidebar-section">
+          <div class="section-label">Structure</div>
+          <div class="sidebar-tree">
+            <ul id="tree-list" class="tree-root"></ul>
+          </div>
+          <div id="tree-status" class="tree-status" aria-live="polite">
+            Waiting for file query parameter.
+          </div>
+        </div>
+
+        <div id="metadata-panel" class="sidebar-section">
+          <div class="section-label">Metadata</div>
+          <div class="sidebar-panel-scroll sidebar-metadata-scroll">
+            <div class="sidebar-metadata-panel">
+              <div class="panel-state">
+                <div class="state-text">
+                  Select an item from the tree to view its metadata.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section id="viewer-main" class="viewer-main">
+        <div id="viewer-topbar" class="viewer-topbar">
+          <div class="topbar-left">
+            <button
+              id="sidebar-toggle-btn"
+              class="sidebar-toggle-btn"
+              type="button"
+              aria-label="Toggle sidebar"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
+                <line x1="3" y1="5" x2="17" y2="5"></line>
+                <line x1="3" y1="10" x2="17" y2="10"></line>
+                <line x1="3" y1="15" x2="17" y2="15"></line>
+              </svg>
+            </button>
+            <div class="topbar-path">
+              <div class="breadcrumb-label">File location</div>
+              <div id="breadcrumb-path" class="breadcrumb">
+                <span id="breadcrumb-file" class="crumb active">No file selected</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="topbar-right">
+            <button id="viewer-back-btn" class="ghost-btn" type="button">
+              <svg
+                class="btn-icon"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="10 2 4 8 10 14"></polyline>
+              </svg>
+              <span class="btn-label">Back to files</span>
+            </button>
+            <button
+              id="viewer-fullscreen-btn"
+              class="ghost-btn"
+              type="button"
+              title="Toggle fullscreen"
+            >
+              <svg
+                class="btn-icon"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"></path>
+              </svg>
+              <span class="btn-label">Fullscreen</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="viewer-subbar" class="viewer-subbar" hidden>
+          <div id="subbar-tabs" class="subbar-tabs"></div>
+          <div id="subbar-actions" class="subbar-actions"></div>
+        </div>
+
+        <div id="viewer-panel" class="viewer-panel">
+          <div id="display-pane" hidden></div>
+          <div id="inspect-pane" hidden></div>
+          <div
+            id="display-status"
+            class="panel-status info"
+            role="status"
+            aria-live="polite"
+          ></div>
+          <div
+            id="inspect-status"
+            class="panel-status info"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></div>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="sidebar-backdrop"
+      class="sidebar-backdrop"
+      style="display: none"
+    ></div>
+    <div
+      id="global-status"
+      class="panel-status info"
+      role="status"
+      aria-live="polite"
+    >
+      Viewer shell loaded. Waiting for file query parameter from host UI.
+    </div>
+
+    <script src="./config/runtime-config.js"></script>
+
+    <script>
+      (function hostFileBridge() {
+        function normalizeFileKey(value) {
+          if (typeof value !== "string") {
+            return "";
+          }
+
+          return value.trim();
+        }
+
+        function readHostFileVariable() {
+          if (typeof file !== "undefined") {
+            return normalizeFileKey(file);
+          }
+
+          return normalizeFileKey(window.file);
+        }
+
+        function setFileParam(fileKey) {
+          var params = new URLSearchParams(window.location.search);
+          params.set("file", fileKey);
+
+          if (typeof window.history.replaceState === "function") {
+            window.history.replaceState(
+              {},
+              "",
+              window.location.pathname +
+                "?" +
+                params.toString() +
+                window.location.hash,
+            );
+          }
+        }
+
+        function normalizeIncomingFileParam() {
+          var params = new URLSearchParams(window.location.search);
+          if (params.get("file")) {
+            return;
+          }
+
+          var externalKey =
+            params.get("path") || params.get("key") || params.get("filePath");
+
+          if (!externalKey) {
+            externalKey = readHostFileVariable();
+          }
+
+          if (!externalKey) {
+            return;
+          }
+
+          setFileParam(externalKey);
+        }
+
+        function openFileFromHostUi(fileKey) {
+          if (!fileKey) {
+            return;
+          }
+
+          setFileParam(fileKey);
+
+          if (
+            window.actions &&
+            typeof window.actions.openViewer === "function"
+          ) {
+            window.actions.openViewer({ key: fileKey, etag: null });
+
+            if (typeof window.actions.loadFiles === "function") {
+              window.actions.loadFiles();
+            }
+          }
+        }
+
+        document.addEventListener("click", function (event) {
+          var button = event.target.closest("[data-file-key]");
+          if (!button) {
+            return;
+          }
+
+          openFileFromHostUi(button.getAttribute("data-file-key") || "");
+        });
+
+        window.openFileFromHostUi = openFileFromHostUi;
+        window.syncHostFileVariable = function syncHostFileVariable() {
+          var hostFileKey = readHostFileVariable();
+          if (!hostFileKey) {
+            return;
+          }
+
+          openFileFromHostUi(hostFileKey);
+        };
+
+        normalizeIncomingFileParam();
+      })();
+    </script>
+
+    <script src="./js/core/namespace.js" defer></script>
+    <script src="./js/core/config.js" defer></script>
+    <script src="./js/core/domRefs.js" defer></script>
+
+    <script src="./js/utils/format.js" defer></script>
+    <script src="./js/utils/lru.js" defer></script>
+    <script src="./js/utils/export.js" defer></script>
+
+    <script src="./js/api/client.js" defer></script>
+    <script src="./js/api/contracts.js" defer></script>
+    <script src="./js/api/hdf5Service.js" defer></script>
+
+    <script src="./js/state/store.js" defer></script>
+    <script src="./js/state/reducers/utils.js" defer></script>
+    <script src="./js/state/reducers/filesActions.js" defer></script>
+    <script src="./js/state/reducers/treeActions.js" defer></script>
+    <script src="./js/state/reducers/viewActions.js" defer></script>
+    <script src="./js/state/reducers/displayConfigActions.js" defer></script>
+    <script src="./js/state/reducers/dataActions.js" defer></script>
+    <script src="./js/state/reducers/compareActions.js" defer></script>
+    <script src="./js/state/reducers.js" defer></script>
+
+    <script src="./js/components/viewerPanel/shared.js" defer></script>
+    <script src="./js/components/viewerPanel/render/config.js" defer></script>
+    <script src="./js/components/viewerPanel/render/previews.js" defer></script>
+    <script src="./js/components/viewerPanel/render/dimensionControls.js" defer></script>
+    <script src="./js/components/viewerPanel/render/sections.js" defer></script>
+    <script src="./js/components/viewerPanel/render.js" defer></script>
+    <script src="./js/components/viewerPanel/runtime/common.js" defer></script>
+    <script src="./js/components/viewerPanel/runtime/matrixRuntime.js" defer></script>
+    <script src="./js/components/viewerPanel/runtime/lineRuntime.js" defer></script>
+    <script src="./js/components/viewerPanel/runtime/heatmapRuntime.js" defer></script>
+    <script src="./js/components/viewerPanel/runtime/bindEvents.js" defer></script>
+    <script src="./js/components/viewerPanel/runtime.js" defer></script>
+    <script src="./js/components/viewerPanel.js" defer></script>
+
+    <script src="./js/components/sidebarTree.js" defer></script>
+    <script src="./js/views/viewerView.js" defer></script>
+
+    <script src="./js/app-viewer.js" defer></script>
+  </body>
+</html>
