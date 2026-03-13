@@ -20,7 +20,6 @@
   var REQUIRED_IDS = [
     "viewer-app",
     "viewer-sidebar",
-    "sidebar-header",
     "tree-panel",
     "tree-list",
     "tree-status",
@@ -51,7 +50,6 @@
     return {
       viewerApp: rootDoc.getElementById("viewer-app"),
       viewerSidebar: rootDoc.getElementById("viewer-sidebar"),
-      sidebarHeader: rootDoc.getElementById("sidebar-header"),
       treePanel: rootDoc.getElementById("tree-panel"),
       treeList: rootDoc.getElementById("tree-list"),
       treeStatus: rootDoc.getElementById("tree-status"),

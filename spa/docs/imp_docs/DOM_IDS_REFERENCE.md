@@ -24,10 +24,10 @@ These 24 IDs **must** exist in the HTML shell. They are defined in `REQUIRED_IDS
 |---|---|
 | `viewer-app` | Root wrapper `<div>` — receives sidebar state classes (`sidebar-collapsed`, `sidebar-open`) |
 | `viewer-sidebar` | `<aside>` sidebar panel container |
-| `sidebar-header` | Sidebar header area |
 | `tree-panel` | Tree section container inside the sidebar |
 | `tree-list` | `<ul>` where file/group tree nodes are injected by `sidebarTree.js` |
 | `tree-status` | Status text inside the tree panel (loading, errors, empty states) |
+| `metadata-panel` | Sidebar metadata section container below the tree |
 | `viewer-main` | `<section>` main content area |
 | `viewer-topbar` | Top bar container |
 | `breadcrumb-file` | `<span>` showing current file name inside the breadcrumb |
@@ -43,7 +43,7 @@ These 24 IDs **must** exist in the HTML shell. They are defined in `REQUIRED_IDS
 | `global-status` | App-level status bar for boot messages and fatal errors |
 | `sidebar-backdrop` | Overlay `<div>` shown on mobile when sidebar is open |
 | `sidebar-toggle-btn` | Hamburger button that opens/closes the sidebar |
-| `sidebar-close-btn` | Close button inside the sidebar header |
+| `sidebar-close-btn` | Close button inside the sidebar |
 | `viewer-back-btn` | "Back to files" button in the topbar |
 | `viewer-fullscreen-btn` | Fullscreen toggle button in the topbar |
 

@@ -28,7 +28,6 @@ Validation source:
 | ID | Purpose | Main file using it |
 |---|---|---|
 | `viewer-sidebar` | tree container root | `js/views/viewerView.js` |
-| `sidebar-header` | tree header area | `js/components/sidebarTree.js` |
 | `tree-panel` | tree section wrapper | `js/components/sidebarTree.js` |
 | `tree-list` | list root for nodes | `js/components/sidebarTree.js` |
 | `tree-status` | tree status message area | `js/views/viewerView.js` |

@@ -12,6 +12,7 @@
       - `?path=<backend-object-key>`  -> normalized to `file` below for host integrations
       - `?key=<backend-object-key>`   -> normalized to `file` below for host integrations
       - `?filePath=<backend-object-key>` -> normalized to `file` below for host integrations
+      - A host page may also expose the selected backend object path in a global `file` variable
 
       Important:
       - Pass the backend object key/path, not a full browser URL.
@@ -264,10 +265,28 @@
       - Keeps the shared viewer runtime unchanged.
       - If the host UI passes `path`, `key`, or `filePath`, this normalizes it to `file`
         before `spa/js/app-viewer.js` boots.
+      - If the host page already stores the selected path in a global `file` variable,
+        this bridge reads that too.
       - If your host UI already sends `?file=<backend-object-key>`, you do not need to change this.
     -->
     <script>
       (function hostFileBridge() {
+        function normalizeFileKey(value) {
+          if (typeof value !== "string") {
+            return "";
+          }
+
+          return value.trim();
+        }
+
+        function readHostFileVariable() {
+          if (typeof file !== "undefined") {
+            return normalizeFileKey(file);
+          }
+
+          return normalizeFileKey(window.file);
+        }
+
         function setFileParam(fileKey) {
           var params = new URLSearchParams(window.location.search);
           params.set("file", fileKey);
@@ -292,6 +311,10 @@
 
           var externalKey =
             params.get("path") || params.get("key") || params.get("filePath");
+
+          if (!externalKey) {
+            externalKey = readHostFileVariable();
+          }
 
           if (!externalKey) {
             return;
@@ -329,6 +352,14 @@
         });
 
         window.openFileFromHostUi = openFileFromHostUi;
+        window.syncHostFileVariable = function syncHostFileVariable() {
+          var hostFileKey = readHostFileVariable();
+          if (!hostFileKey) {
+            return;
+          }
+
+          openFileFromHostUi(hostFileKey);
+        };
 
         normalizeIncomingFileParam();
       })();

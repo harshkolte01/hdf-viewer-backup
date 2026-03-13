@@ -45,6 +45,7 @@ http://localhost:5000/files/hdf5/sample.hdf5
 - `?path=<backend-object-key>` -> normalized to `file`
 - `?key=<backend-object-key>` -> normalized to `file`
 - `?filePath=<backend-object-key>` -> normalized to `file`
+- host global `file = "<backend-object-key>"` -> normalized to `file`
 
 The shared viewer runtime finally reads:
 
@@ -56,7 +57,7 @@ That read happens in:
 
 - `spa/js/app-viewer.js`
 
-The normalization from `path`, `key`, or `filePath` to `file` happens in:
+The normalization from `path`, `key`, `filePath`, or the host `file` variable to `file` happens in:
 
 - `spa/index.html`
 
@@ -156,6 +157,13 @@ const fileKey = "hdf5/sample.hdf5";
 window.openFileFromHostUi(fileKey);
 ```
 
+If the host page updates a global `file` variable instead, call:
+
+```js
+file = "hdf5/sample.hdf5";
+window.syncHostFileVariable();
+```
+
 If you want the direct logic, it is:
 
 ```js
@@ -197,6 +205,7 @@ If you want to change how incoming file selection works, check:
 - `spa/index.html`
   - host URL normalization
   - `window.openFileFromHostUi(fileKey)`
+  - `window.syncHostFileVariable()`
 
 - `spa/js/app-viewer.js`
   - reading `?file=`
@@ -209,3 +218,4 @@ If you want to change how incoming file selection works, check:
 - selected radio button value should be that path
 - preferred URL param: `file`
 - same-page host UI should call: `window.openFileFromHostUi(fileKey)`
+- host pages with a global `file` variable can call: `window.syncHostFileVariable()`

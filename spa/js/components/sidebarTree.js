@@ -322,18 +322,12 @@ function renderSidebarTree(state) {
 
   return `
     <aside id="viewer-sidebar" class="viewer-sidebar">
-      <div id="sidebar-header" class="sidebar-top">
-        <div class="sidebar-top-row">
-          <div class="sidebar-title">${state.selectedFile ? escapeHtml(state.selectedFile.split('/').pop()) : "HDF Viewer"}</div>
-          <button class="sidebar-close-btn" id="sidebar-close-btn" type="button" aria-label="Close sidebar">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="4" y1="4" x2="14" y2="14"/><line x1="14" y1="4" x2="4" y2="14"/>
-            </svg>
-          </button>
-        </div>
-        ${state.selectedFile ? '<div class="file-pill">Active file</div>' : ""}
-      </div>
       <div id="tree-panel" class="sidebar-section sidebar-section-tree">
+        <button class="sidebar-close-btn" id="sidebar-close-btn" type="button" aria-label="Close sidebar">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="4" y1="4" x2="14" y2="14"/><line x1="14" y1="4" x2="4" y2="14"/>
+          </svg>
+        </button>
         <div class="section-label">Structure</div>
         <div class="sidebar-tree ${compareTreeScrollEnabled ? "is-compare-mode" : ""}">
           <ul id="tree-list" class="tree-root">
